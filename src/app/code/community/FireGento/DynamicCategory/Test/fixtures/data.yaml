@@ -1,3 +1,23 @@
+scope:
+  website: # Initialize websites
+    - website_id: 1
+      code: base
+      name: Default Store
+      default_group_id: 1
+  group: # Initializes store groups
+    - group_id: 1
+      website_id: 1
+      name: Default Store Group
+      default_store_id: 1
+      root_category_id: 2 # Default Category
+  store: # Initializes store views
+    - store_id: 1
+      website_id: 1
+      group_id: 1
+      code: default
+      name: Default
+      is_active: 1
+
 eav:
   catalog_category:
     - entity_id: 1
@@ -71,6 +91,7 @@ eav:
 
   catalog_product:
     - entity_id: 10
+      attribute_set_id: 4
       sku: test-product-1
       name: Test Product 1
       url_key: test-product-1
@@ -87,6 +108,7 @@ eav:
       updated_at: 2013-10-26 13:00:00
 
     - entity_id: 11
+      attribute_set_id: 4
       sku: test-product-2
       name: Test Product 2
       url_key: test-product-2
@@ -103,6 +125,7 @@ eav:
       updated_at: 2013-10-26 13:00:00
 
     - entity_id: 12
+      attribute_set_id: 4
       sku: test-product-2
       name: Test Product 2
       url_key: test-product-2
@@ -119,6 +142,7 @@ eav:
       updated_at: 2013-10-26 13:00:00
 
     - entity_id: 13
+      attribute_set_id: 4
       sku: test-product-3
       name: Test Product 3
       url_key: test-product-3
