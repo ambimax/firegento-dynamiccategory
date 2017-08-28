@@ -33,7 +33,7 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Combine
      * @var array
      */
     protected $_customFilterAttributes = array(
-        'type_id', 'created_at', 'updated_at'
+        'type_id', 'created_at', 'updated_at', 'valid_special_price'
     );
 
     /**
@@ -60,6 +60,11 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Combine
                 'value' => $class . '|' . $code,
                 'label' => $label
             );
+
+            $childAttributes[] = array(
+                'value' => 'dynamiccategory/rule_condition_child_product|' . $code,
+                'label' => $label
+            );
         }
 
         $conditions = array(
@@ -68,12 +73,16 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Combine
                 'label' => Mage::helper('rule')->__('Please choose a condition to add...')
             ),
             array(
-                'value' => 'catalogrule/rule_condition_combine',
+                'value' => 'dynamiccategory/rule_condition_combine',
                 'label' => Mage::helper('catalogrule')->__('Conditions Combination')
             ),
             array(
                 'label' => Mage::helper('catalogrule')->__('Product Attribute'),
                 'value' => $attributes
+            ),
+            array(
+                'label' => Mage::helper('dynamiccategory')->__('Child Product Attribute'),
+                'value' => $childAttributes
             ),
         );
 
@@ -91,7 +100,7 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Combine
         $this->setAggregatorOption(
             array(
                 'all' => Mage::helper('rule')->__('ALL'),
-                //'any' => Mage::helper('rule')->__('ANY'),
+                'any' => Mage::helper('rule')->__('ANY'),
             )
         );
 

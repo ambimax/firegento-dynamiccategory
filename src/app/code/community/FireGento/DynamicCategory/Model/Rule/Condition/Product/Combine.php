@@ -62,6 +62,11 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product_Combine
                     'value' => 'dynamiccategory/rule_condition_product|' . $code,
                     'label' => $label
                 );
+
+                $childAttributes[] = array(
+                    'value' => 'dynamiccategory/rule_condition_child_product|' . $code,
+                    'label' => $label
+                );
             }
         }
 
@@ -76,6 +81,10 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product_Combine
                 array(
                     'label' => Mage::helper('dynamiccategory')->__('Product Attribute'),
                     'value' => $pAttributes
+                ),
+                array(
+                    'label' => Mage::helper('dynamiccategory')->__('Child Product Attribute'),
+                    'value' => $childAttributes
                 ),
             )
         );

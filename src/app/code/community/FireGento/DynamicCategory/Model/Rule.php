@@ -105,7 +105,12 @@ class FireGento_DynamicCategory_Model_Rule extends Mage_CatalogRule_Model_Rule
         $product = clone $args['product'];
         $product->setData($args['row']);
         if ($this->getConditions()->validate($product)) {
-            $this->_productIds[] = $product->getId();
+            $productIds = $product->getDynamicCategoryProductIds();
+            if (is_array($productIds)) {
+                $this->_productIds = array_unique(array_merge($this->_productIds, $productIds));
+            } elseif ( ! in_array($product->getId(), (array) $this->_productIds) ) {
+                $this->_productIds[] = $product->getId();
+            }
         }
     }
 

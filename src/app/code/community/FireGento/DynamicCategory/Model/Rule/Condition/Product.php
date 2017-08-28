@@ -78,6 +78,7 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product
         $attributes['type_id'] = $this->getHelper()->__('Product Type');
         $attributes['created_at'] = $this->getHelper()->__('Product Created At');
         $attributes['updated_at'] = $this->getHelper()->__('Product Updated At');
+        $attributes['valid_special_price'] = $this->getHelper()->__('Special Price Validity');
     }
 
     /**
@@ -127,6 +128,9 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product
             } elseif ($this->getAttribute() == 'type_id') {
                 $options = Mage::getSingleton('catalog/product_type')->getOptionArray();
                 $this->setData('value_option', $options);
+            } elseif ($this->getAttribute() == 'valid_special_price') {
+                $options = Mage::getSingleton('dynamiccategory/entity_attribute_source_valid')->getOptionArray();
+                $this->setData('value_option', $options);
             } elseif (is_object($this->getAttributeObject()) && $this->getAttributeObject()->usesSource()) {
                 if ($this->getAttributeObject()->getFrontendInput() == 'multiselect') {
                     $addEmptyOption = false;
@@ -167,6 +171,9 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product
                 $this->setData('value_select_options', $options);
             } elseif ($this->getAttribute() == 'type_id') {
                 $options = Mage::getSingleton('catalog/product_type')->getOptions();
+                $this->setData('value_select_options', $options);
+            } elseif ($this->getAttribute() == 'valid_special_price') {
+                $options = Mage::getSingleton('dynamiccategory/entity_attribute_source_valid')->getAllOptions();
                 $this->setData('value_select_options', $options);
             } elseif (is_object($this->getAttributeObject()) && $this->getAttributeObject()->usesSource()) {
                 if ($this->getAttributeObject()->getFrontendInput() == 'multiselect') {
@@ -230,6 +237,15 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product
     public function collectValidatedAttributes($productCollection)
     {
         $attribute = $this->getAttribute();
+
+        if ( 'valid_special_price' == $attribute ) {
+            $productCollection->addAttributeToSelect('price', 'left');
+            $productCollection->addAttributeToSelect('special_price', 'left');
+            $productCollection->addAttributeToSelect('special_from_date', 'left');
+            $productCollection->addAttributeToSelect('special_to_date', 'left');
+            return $this;
+        }
+
         if ('category_ids' != $attribute) {
             if ($this->getAttributeObject()->isScopeGlobal()) {
                 $attributes = $this->getRule()->getCollectedAttributes();
@@ -251,7 +267,7 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product
      */
     public function getInputType()
     {
-        $selectAttributes = array('attribute_set_id', 'type_id');
+        $selectAttributes = array('attribute_set_id', 'type_id', 'valid_special_price');
         if (in_array($this->getAttribute(), $selectAttributes)) {
             return 'select';
         }
@@ -290,7 +306,7 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product
      */
     public function getValueElementType()
     {
-        $selectAttributes = array('attribute_set_id', 'type_id');
+        $selectAttributes = array('attribute_set_id', 'type_id', 'valid_special_price');
         if (in_array($this->getAttribute(), $selectAttributes)) {
             return 'select';
         }
@@ -415,6 +431,8 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product
 
         if ('category_ids' == $attrCode) {
             return $this->validateAttribute($object->getAvailableInCategories());
+        } elseif ( 'valid_special_price' == $attrCode) {
+            return $this->validateSpecialPrice($object->getPrice(), $object->getFinalPrice());
         } elseif (!isset($this->_entityAttributeValues[$object->getId()])) {
             $attr = $object->getResource()->getAttribute($attrCode);
 
@@ -454,6 +472,21 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product
 
             return (bool)$result;
         }
+    }
+
+    /**
+     * @param null $price
+     * @param null $finalPrice
+     * @return bool
+     * @internal param $object
+     */
+    public function validateSpecialPrice($price = null, $finalPrice = null)
+    {
+        $hasLowerFinalPrice = $price > 0 && $finalPrice > 0 && $finalPrice < $price;
+
+        return strcmp($this->getOperatorForValidate(), '==') === 0
+            ? $hasLowerFinalPrice == $this->getValueParsed()
+            : $hasLowerFinalPrice != $this->getValueParsed();
     }
 
     /**
