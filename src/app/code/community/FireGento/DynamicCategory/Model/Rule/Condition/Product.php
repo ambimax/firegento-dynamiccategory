@@ -239,10 +239,22 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product
         $attribute = $this->getAttribute();
 
         if ( 'valid_special_price' == $attribute ) {
-            $productCollection->addAttributeToSelect('price', 'left');
-            $productCollection->addAttributeToSelect('special_price', 'left');
-            $productCollection->addAttributeToSelect('special_from_date', 'left');
-            $productCollection->addAttributeToSelect('special_to_date', 'left');
+            $priceIsGlobal = Mage::getStoreConfig('catalog/price/scope') == 0;
+            if ($priceIsGlobal) {
+                $attributes = $this->getRule()->getCollectedAttributes();
+                foreach (array('price', 'special_price', 'special_from_date', 'special_to_date') as $attributeCode) {
+                    $attributes[$attributeCode] = true;
+                    $productCollection->addAttributeToSelect($attributeCode, 'left');
+                }
+                $this->getRule()->setCollectedAttributes($attributes);
+            } else {
+                $this->_entityAttributeValues = [
+                    'price'             => $productCollection->getAllAttributeValues('price'),
+                    'special_price'     => $productCollection->getAllAttributeValues('special_price'),
+                    'special_from_date' => $productCollection->getAllAttributeValues('special_from_date'),
+                    'special_to_date'   => $productCollection->getAllAttributeValues('special_to_date')
+                ];
+            }
             return $this;
         }
 
@@ -431,8 +443,8 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product
 
         if ('category_ids' == $attrCode) {
             return $this->validateAttribute($object->getAvailableInCategories());
-        } elseif ( 'valid_special_price' == $attrCode) {
-            return $this->validateSpecialPrice($object->getPrice(), $object->getFinalPrice());
+        } elseif ('valid_special_price' == $attrCode) {
+            return $this->validateSpecialPrice($object);
         } elseif (!isset($this->_entityAttributeValues[$object->getId()])) {
             $attr = $object->getResource()->getAttribute($attrCode);
 
@@ -475,14 +487,24 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product
     }
 
     /**
-     * @param null $price
-     * @param null $finalPrice
+     * @param $object
      * @return bool
-     * @internal param $object
      */
-    public function validateSpecialPrice($price = null, $finalPrice = null)
+    public function validateSpecialPrice($object)
     {
-        $hasLowerFinalPrice = $price > 0 && $finalPrice > 0 && $finalPrice < $price;
+        $storeId = Mage::app()->getWebsite($this->getValueParsed())->getDefaultStore()->getId();
+        $priceIsGlobal = Mage::getStoreConfig('catalog/price/scope') == 0;
+
+        if (!$priceIsGlobal) {
+            foreach (array('price', 'special_price', 'special_from_date', 'special_to_date') as $attributeCode) {
+                $value = $this->_entityAttributeValues[$attributeCode][$object->getId()];
+                $object->setData($attributeCode, isset($value[$storeId]) ? $value[$storeId] : $value[0]);
+            }
+        }
+
+        $hasLowerFinalPrice = $object->getPrice() > 0
+            && $object->getFinalPrice() > 0
+            && $object->getFinalPrice() < $object->getPrice();
 
         return strcmp($this->getOperatorForValidate(), '==') === 0
             ? $hasLowerFinalPrice == $this->getValueParsed()

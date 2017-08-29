@@ -28,18 +28,11 @@
 class FireGento_DynamicCategory_Model_Entity_Attribute_Source_Valid extends Varien_Object
 {
     /**
-     * Option values
-     */
-    const VALUE_VALID = 1;
-    const VALUE_INVALID = 0;
-
-    /**
      * Options array
      *
      * @var array
      */
     protected $_options                 = null;
-
 
     /**
      * Retrieve all options array
@@ -51,14 +44,21 @@ class FireGento_DynamicCategory_Model_Entity_Attribute_Source_Valid extends Vari
         if (is_null($this->_options)) {
             $this->_options = array(
                 array(
-                    'label' => Mage::helper('dynamiccategory')->__('Valid'),
-                    'value' => self::VALUE_VALID
-                ),
-                array(
-                    'label' => Mage::helper('dynamiccategory')->__('Invalid'),
-                    'value' => self::VALUE_INVALID
-                ),
+                    'label' => Mage::helper('dynamiccategory')->__('valid in Default'),
+                    'value' => 'admin',
+                )
             );
+
+            $priceIsGlobal = Mage::getStoreConfig('catalog/price/scope') == 0;
+            if (!$priceIsGlobal) {
+                /** @var Mage_Core_Model_Website $website */
+                foreach (Mage::app()->getWebsites() as $website) {
+                    $this->_options[] = array(
+                        'label' => Mage::helper('dynamiccategory')->__('valid in website %s', $website->getName()),
+                        'value' => $website->getCode(),
+                    );
+                }
+            }
         }
         return $this->_options;
     }
