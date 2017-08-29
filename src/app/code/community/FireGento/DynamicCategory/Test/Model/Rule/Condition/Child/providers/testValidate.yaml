@@ -1,0 +1,56 @@
+---
+
+-
+  conditions:
+    1:
+      type: catalogrule/rule_condition_combine
+      aggregator: all
+      value: 1
+      new_child:
+    1--1:
+      type: dynamiccategory/rule_condition_child_product
+      attribute: type_id
+      operator: ==
+      value: simple
+  expectedProductIds:
+    - 14
+    - 16
+    - 18
+    - 23
+
+-
+  conditions:
+    1:
+      type: catalogrule/rule_condition_combine
+      aggregator: all
+      value: 1
+      new_child:
+    1--1:
+      type: dynamiccategory/rule_condition_child_product
+      attribute: price
+      operator: ==
+      value: 49.99
+  expectedProductIds:
+    - 18
+    - 23
+
+-
+  conditions:
+    1:
+      type: catalogrule/rule_condition_combine
+      aggregator: any
+      value: 1
+      new_child:
+    1--1:
+      type: dynamiccategory/rule_condition_child_product
+      attribute: valid_special_price
+      operator: ==
+      value: base
+    1--2:
+      type: dynamiccategory/rule_condition_child_product
+      attribute: valid_special_price
+      operator: ==
+      value: base
+  expectedProductIds:
+    - 14
+    - 18

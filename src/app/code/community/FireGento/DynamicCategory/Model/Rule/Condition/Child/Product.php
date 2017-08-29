@@ -48,23 +48,79 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Child_Product
     /**
      * Validate product attrbute value for condition
      *
-     * @param  Varien_Object $object Object
-     * @return boolean True/False
+     * @param Varien_Object $object
+     * @return bool
      */
     public function validate(Varien_Object $object)
     {
-        $valid = parent::validate($object);
-        if ($valid) {
-
-            // fetch all parent product ids
-            $select = $this->getAdapter()->select()
-                ->from($this->getResource()->getTableName('catalog/product_link'), array('product_id'))
-                ->where('linked_product_id = ?', $object->getId());
-
-            $parentProductIds = (array)$this->getAdapter()->fetchCol($select);
-            $object->setDynamicCategoryProductIds($parentProductIds);
+        if ('configurable' == $object->getTypeId()) {
+            return $this->_validateConfigurableChildren($object);
         }
-        return $valid;
+
+        if ('grouped' == $object->getTypeId()) {
+            return $this->_validateGroupedChildren($object);
+        }
+
+        return false;
+    }
+
+    /**
+     * Load and validate product children
+     * @param Varien_Object $object
+     * @return bool
+     */
+    protected function _validateGroupedChildren(Varien_Object $object)
+    {
+        /** @var Mage_Catalog_Model_Resource_Product_Collection $productCollection */
+        $productCollection = Mage::getResourceModel('catalog/product_collection');
+        $this->collectValidatedAttributes($productCollection);
+
+        $productCollection->getSelect()
+            ->joinLeft(
+                array('link' => $this->getResource()->getTableName('catalog/product_link')),
+                'e.entity_id = link.linked_product_id',
+                array()
+            )
+            ->joinLeft(
+                array('type' => $this->getResource()->getTableName('catalog/product_link_type')),
+                'link.link_type_id = type.link_type_id',
+                array()
+            )
+            ->where('type.code = ?', 'super')
+            ->where('link.product_id = ?', $object->getId());
+
+        foreach ($productCollection as $child) {
+            $valid = parent::validate($child);
+            if ($valid) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function _validateConfigurableChildren(Varien_Object $object)
+    {
+        /** @var Mage_Catalog_Model_Resource_Product_Collection $productCollection */
+        $productCollection = Mage::getResourceModel('catalog/product_collection');
+        $this->collectValidatedAttributes($productCollection);
+
+        $productCollection->getSelect()
+            ->joinLeft(
+                array('super' => $this->getResource()->getTableName('catalog/product_super_link')),
+                'e.entity_id = super.product_id',
+                array()
+            )
+            ->where('super.parent_id = ?', $object->getId());
+
+        foreach ($productCollection as $child) {
+            $valid = parent::validate($child);
+            if ($valid) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

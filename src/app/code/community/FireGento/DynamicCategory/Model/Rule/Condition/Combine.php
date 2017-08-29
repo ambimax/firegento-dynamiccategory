@@ -89,23 +89,23 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Combine
         return $conditions;
     }
 
-    /**
-     * Returns the aggregator options
-     *
-     * @see Mage_Rule_Model_Condition_Combine::loadAggregatorOptions()
-     * @return FireGento_DynamicCategory_Model_Rule_Condition_Combine Self.
-     */
-    public function loadAggregatorOptions()
-    {
-        $this->setAggregatorOption(
-            array(
-                'all' => Mage::helper('rule')->__('ALL'),
-                'any' => Mage::helper('rule')->__('ANY'),
-            )
-        );
-
-        return $this;
-    }
+//    /**
+//     * Returns the aggregator options
+//     *
+//     * @see Mage_Rule_Model_Condition_Combine::loadAggregatorOptions()
+//     * @return FireGento_DynamicCategory_Model_Rule_Condition_Combine Self.
+//     */
+//    public function loadAggregatorOptions()
+//    {
+//        $this->setAggregatorOption(
+//            array(
+//                'all' => Mage::helper('rule')->__('ALL'),
+//                //'any' => Mage::helper('rule')->__('ANY'),
+//            )
+//        );
+//
+//        return $this;
+//    }
 
     /**
      * Returns the value options
