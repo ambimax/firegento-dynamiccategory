@@ -497,7 +497,9 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product
 
         if (!$priceIsGlobal) {
             foreach (array('price', 'special_price', 'special_from_date', 'special_to_date') as $attributeCode) {
-                $value = $this->_entityAttributeValues[$attributeCode][$object->getId()];
+                $value = isset($this->_entityAttributeValues[$attributeCode][$object->getId()])
+                    ? $this->_entityAttributeValues[$attributeCode][$object->getId()]
+                    : array(null);
                 $object->setData($attributeCode, isset($value[$storeId]) ? $value[$storeId] : $value[0]);
             }
         }
