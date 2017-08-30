@@ -73,7 +73,6 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Child_Product
     {
         /** @var Mage_Catalog_Model_Resource_Product_Collection $productCollection */
         $productCollection = Mage::getResourceModel('catalog/product_collection');
-        $this->collectValidatedAttributes($productCollection);
 
         $productCollection->getSelect()
             ->joinLeft(
@@ -89,6 +88,8 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Child_Product
             ->where('type.code = ?', 'super')
             ->where('link.product_id = ?', $object->getId());
 
+        $this->collectValidatedAttributes($productCollection);
+
         foreach ($productCollection as $child) {
             $valid = parent::validate($child);
             if ($valid) {
@@ -103,7 +104,6 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Child_Product
     {
         /** @var Mage_Catalog_Model_Resource_Product_Collection $productCollection */
         $productCollection = Mage::getResourceModel('catalog/product_collection');
-        $this->collectValidatedAttributes($productCollection);
 
         $productCollection->getSelect()
             ->joinLeft(
@@ -112,6 +112,8 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Child_Product
                 array()
             )
             ->where('super.parent_id = ?', $object->getId());
+
+        $this->collectValidatedAttributes($productCollection);
 
         foreach ($productCollection as $child) {
             $valid = parent::validate($child);
