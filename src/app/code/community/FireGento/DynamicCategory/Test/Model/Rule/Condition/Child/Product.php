@@ -3,6 +3,9 @@
 class FireGento_DynamicCategory_Test_Model_Rule_Condition_Child_Product extends EcomDev_PHPUnit_Test_Case
 {
     /**
+     * @param $conditions
+     * @param $expectedProductIds
+     *
      * @loadFixture ~FireGento_DynamicCategory/bigdata
      * @dataProvider dataProvider
      */
