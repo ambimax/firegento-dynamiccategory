@@ -46,7 +46,7 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Child_Product
     }
 
     /**
-     * Validate product attrbute value for condition
+     * Validate product attribute value for condition
      *
      * @param Varien_Object $object
      * @return bool
@@ -100,6 +100,10 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Child_Product
         return false;
     }
 
+    /**
+     * @param Varien_Object $object
+     * @return bool
+     */
     public function _validateConfigurableChildren(Varien_Object $object)
     {
         /** @var Mage_Catalog_Model_Resource_Product_Collection $productCollection */
