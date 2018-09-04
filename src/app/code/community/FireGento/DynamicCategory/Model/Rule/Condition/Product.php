@@ -494,13 +494,21 @@ class FireGento_DynamicCategory_Model_Rule_Condition_Product
     {
         $storeId = Mage::app()->getWebsite($this->getValueParsed())->getDefaultStore()->getId();
         $priceIsGlobal = Mage::getStoreConfig('catalog/price/scope') == 0;
+        $defaultStoreId = 0;
 
         if (!$priceIsGlobal) {
             foreach (array('price', 'special_price', 'special_from_date', 'special_to_date') as $attributeCode) {
-                $value = isset($this->_entityAttributeValues[$attributeCode][$object->getId()])
-                    ? $this->_entityAttributeValues[$attributeCode][$object->getId()]
-                    : array(null);
-                $object->setData($attributeCode, isset($value[$storeId]) ? $value[$storeId] : $value[0]);
+
+                $values = [];
+                if(isset($this->_entityAttributeValues[$attributeCode][$object->getId()])) {
+                    $values = $this->_entityAttributeValues[$attributeCode][$object->getId()];
+                }
+
+                if(!isset($values[$defaultStoreId])) {
+                    $values[$defaultStoreId] = null;
+                }
+
+                $object->setData($attributeCode, isset($values[$storeId]) ? $values[$storeId] : $values[$defaultStoreId]);
             }
         }
 
